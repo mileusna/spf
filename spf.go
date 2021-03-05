@@ -4,7 +4,6 @@ package spf
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"regexp"
 	"strings"
@@ -64,14 +63,14 @@ func (c *check) checkHost(ip net.IP, domain, sender string) Result {
 	if r.IsSet() {
 		return r
 	}
-	log.Println("\n\n", spf, "\n------------------------")
+	// log.Println("\n\n", spf, "\n------------------------")
 	terms := parseSPF(spf)
 
 	for _, t := range terms {
 		switch t.(type) {
 		case directive:
 			d := t.(directive)
-			log.Println("Check mech:", d.mechanism, d.param)
+			// log.Println("Check mech:", d.mechanism, d.param)
 
 			var r Result
 			switch d.mechanism {
@@ -173,7 +172,7 @@ func (c *check) check(ip net.IP, domain, cidr, qualifier string) Result {
 func checkIP(ip net.IP, ipstr, qualifier string) Result {
 	_, ips, err := net.ParseCIDR(ipstr)
 	if err == nil {
-		log.Println("Check range", ips.String())
+		//log.Println("Check range", ips.String())
 		if ips.Contains(ip) {
 			return evalQualifier(qualifier)
 		}
