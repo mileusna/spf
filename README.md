@@ -17,9 +17,16 @@ import (
 )
 
 func main() {
+    // optional, set DNS server which will be used by resolver.
+    // Default is Google's 8.8.8.8:53
+    spf.DNSServer = "1.1.1.1:53"
+
     ip := net.ParseIP("123.123.123.123")
     r := spf.CheckHost(ip, "domain.com", "name@domain.com", "");
     // returns spf check result
-    // "pass" / "fail" / "softfail" / "neutral" / "none" / "temperror" / "permerror"
+    // "PASS" / "FAIL" / "SOFTFAIL" / "NEUTRAL" / "NONE" / "TEMPERROR" / "PERMERROR"
+
+    // if you only need to retrive SPF record as string from DNS
+    spfRecord, _ := spf.LookupSPF("domain.com")
 }
 ```

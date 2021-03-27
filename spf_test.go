@@ -55,7 +55,7 @@ func TestCheckHost(t *testing.T) {
 		newTestData(ip, "gmail.com", "mileusna@gmail.com", "", spf.Softfail),
 		newTestData(ip, "hotmail.com", "mileusna@hotmail.com", "", spf.Softfail),
 		newTestData(ip2, "netmark.rs", "milos@netmark.rs", "", spf.Pass),
-		newTestData(ip2, "naslovi.net", "milos@naslovi.net", "", spf.Softfail),
+		newTestData(ip2, "naslovi.net", "milos@naslovi.net", "", spf.Pass),
 	}
 
 	for _, d := range data {
@@ -63,7 +63,16 @@ func TestCheckHost(t *testing.T) {
 			t.Fatal("CheckHost", d.ip, d.domain, d.sender, "should", d.result, "returned:", r)
 		}
 	}
+}
 
+func TestDNSSettings(t *testing.T) {
+	spf.DNSServer = "127.2.2.1:53"
+
+	if spf.CheckHost(net.ParseIP("87.237.204.223"), "naslovi.net", "milos@naslovi.net", "") != "TEMPERROR" {
+		t.Error("Invalid DNS configuration should return TEMPERROR")
+	}
+
+	spf.DNSServer = "8.8.8.8:53"
 }
 
 func TestMacro(t *testing.T) {

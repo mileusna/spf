@@ -8,9 +8,14 @@ import (
 	"github.com/miekg/dns"
 )
 
-// LookupSPF returns spf txt record
-// if no records found or more than one record found, r value will be set accordingly to None or PermError
-// If dns lookup faild, r will be set to TempError
+// DNSServer global var to use for resolver in format <ip>:<port>
+// By default it uses Google's 8.8.8.8:53
+// Misconfigured DNSServer will cause SPF checks to return TEMPERROR.
+var DNSServer = "8.8.8.8:53"
+
+// LookupSPF returns spf txt record.
+// if no records found or more than one record found, r value will be set accordingly to None or PermError.
+// If dns lookup faild, r will be set to TempError.
 func LookupSPF(domain string) (spf string, r Result) {
 	txts, err := lookupTXT(domain)
 	if err != nil {
@@ -128,9 +133,10 @@ func dnsQuest(d string, t uint16) (r *dns.Msg, rtt time.Duration, err error) {
 	m.Id = dns.Id()
 	m.SetQuestion(dns.Fqdn(d), t)
 	m.RecursionDesired = true
+	m.SetEdns0(4096, false)
 
 	c := new(dns.Client)
-	return c.Exchange(m, "8.8.8.8:53")
+	return c.Exchange(m, DNSServer)
 }
 
 func init() {
