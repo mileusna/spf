@@ -42,7 +42,11 @@ type check struct {
 	cnt int
 }
 
-// CheckHost for SPF
+// CheckHost for SPF rules.
+// ip - the IP address of the SMTP client that is emitting the mail, either IPv4 or IPv6.
+// domain - the domain that provides the sought-after authorization information; initially, the domain portion of the "MAIL FROM" or "HELO" identity.
+// sender - the "MAIL FROM" or "HELO" identity.
+// helo - domain from helo, used as sender domain if sender is not specified.
 func CheckHost(ip net.IP, domain, sender, helo string) Result {
 
 	if sender == "" {
@@ -66,12 +70,10 @@ func (c *check) checkHost(ip net.IP, domain, sender string) Result {
 	// log.Println("\n\n", spf, "\n------------------------")
 	terms := parseSPF(spf)
 
-	for _, t := range terms {
-		switch t.(type) {
+	for _, term := range terms {
+		switch t := term.(type) {
 		case directive:
-			d := t.(directive)
-			// log.Println("Check mech:", d.mechanism, d.param)
-
+			d := t
 			var r Result
 			switch d.mechanism {
 			case "a":
@@ -127,10 +129,9 @@ func (c *check) checkHost(ip net.IP, domain, sender string) Result {
 			}
 
 		case modifier:
-			mod := t.(modifier)
-			switch mod.name {
+			switch t.name {
 			case "redirect":
-				return c.checkHost(ip, mod.value, sender)
+				return c.checkHost(ip, t.value, sender)
 			case "exp":
 			default:
 			}
