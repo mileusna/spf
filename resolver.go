@@ -128,6 +128,7 @@ func dnsQuest(d string, t uint16) (r *dns.Msg, rtt time.Duration, err error) {
 	m.Id = dns.Id()
 	m.SetQuestion(dns.Fqdn(d), t)
 	m.RecursionDesired = true
+	m.SetEdns0(4096, false)
 
 	c := new(dns.Client)
 	return c.Exchange(m, "8.8.8.8:53")
