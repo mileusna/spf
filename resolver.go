@@ -51,8 +51,9 @@ func lookupTXT(d string) ([]string, error) {
 	}
 
 	for _, answ := range r.Answer {
-		t := answ.(*dns.TXT)
-		txt = append(txt, strings.Join(t.Txt, ""))
+		if t, ok := answ.(*dns.TXT); ok {
+			txt = append(txt, strings.Join(t.Txt, ""))
+		}
 	}
 	return txt, nil
 }
