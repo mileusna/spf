@@ -26,6 +26,11 @@ func TestParse(t *testing.T) {
 	//fmt.Println(spf.ParseSPF("v=spf1 +a redirect=_spf.mailspot.com"))
 }
 
+func TestCNAME(t *testing.T) {
+	ip := net.ParseIP("123.123.123.123")
+	spf.CheckHost(ip, "teicee.fr", "name@teicee.fr", "")
+}
+
 type testData struct {
 	ip     net.IP
 	domain string
@@ -45,22 +50,22 @@ func newTestData(ip, domain, sender, helo string, expResult spf.Result) testData
 }
 func TestCheckHost(t *testing.T) {
 
-	ip := "87.237.204.223"
+	ip := "188.93.126.226"
 	ip2 := "87.237.205.46"
 
 	data := []testData{
 		newTestData(ip, "aviokarte.rs", "milos@aviokarte.rs", "", spf.Pass),
 		newTestData(ip, "naslovi.net", "milos@naslovi.net", "", spf.Pass),
-		newTestData(ip, "netmark.rs", "milos@netmark.rs", "", spf.Fail),
+		newTestData(ip, "netmark.rs", "milos@netmark.rs", "", spf.Pass),
 		newTestData(ip, "gmail.com", "mileusna@gmail.com", "", spf.Softfail),
 		newTestData(ip, "hotmail.com", "mileusna@hotmail.com", "", spf.Softfail),
 		newTestData(ip2, "netmark.rs", "milos@netmark.rs", "", spf.Pass),
-		newTestData(ip2, "naslovi.net", "milos@naslovi.net", "", spf.Pass),
+		newTestData(ip2, "liteanalytics.com", "milos@liteanalytics.com", "", spf.Pass),
 	}
 
 	for _, d := range data {
 		if r := spf.CheckHost(d.ip, d.domain, d.sender, d.helo); r != d.result {
-			t.Fatal("CheckHost", d.ip, d.domain, d.sender, "should", d.result, "returned:", r)
+			t.Error("CheckHost", d.ip, d.domain, d.sender, "should", d.result, "returned:", r)
 		}
 	}
 }

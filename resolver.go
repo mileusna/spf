@@ -1,6 +1,7 @@
 package spf
 
 import (
+	"log"
 	"net"
 	"strings"
 	"time"
@@ -67,8 +68,17 @@ func lookupA(d string) ([]net.IP, error) {
 	}
 
 	for _, answ := range r.Answer {
-		a := answ.(*dns.A)
-		ips = append(ips, a.A)
+		switch answ := answ.(type) {
+		case *dns.A:
+			ips = append(ips, answ.A)
+		case *dns.CNAME:
+			cnameIP, err := lookupA(answ.Target)
+			log.Println("Warning: CNAMEs are not allowed in MX records, according to RFC974, RFC1034 3.6.2, RFC1912 2.4, and RFC2181 10.3.")
+			if err != nil {
+				return nil, err
+			}
+			ips = append(ips, cnameIP...)
+		}
 	}
 
 	return ips, nil
